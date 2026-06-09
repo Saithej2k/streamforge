@@ -1,0 +1,42 @@
+name: ci
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: "1.23.x"
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Run Go and Python tests
+        run: make test
+
+      - name: Run replay fixture dry-run
+        run: make replay-dry-run
+
+      - name: Run diagnostics fixture
+        run: make diagnose
+
+      - name: Build DataHub proposal fixture
+        run: make datahub-dry-run
+
+      - name: Validate Docker Compose file
+        run: docker compose -f deploy/docker-compose.yml config
+
+      - name: Build StreamForge image
+        run: docker build -t streamforge:ci .

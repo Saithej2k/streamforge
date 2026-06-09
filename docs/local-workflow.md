@@ -12,6 +12,12 @@ scripts/run_local_demo.sh
 
 The script runs the Go test suite, validates the replay fixture in dry-run mode, and writes `build/diagnostics-report.json` from the example Iceberg write manifest.
 
+Build DataHub metadata proposals:
+
+```bash
+make datahub-dry-run
+```
+
 ## Docker Stack
 
 Start the services:
@@ -52,3 +58,5 @@ Stop the stack:
 ```bash
 docker compose -f deploy/docker-compose.yml down -v
 ```
+
+See `docs/troubleshooting.md` for common replay, Flink, Iceberg, and DataHub issues.

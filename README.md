@@ -74,6 +74,12 @@ Actual writes include lakehouse placement metadata:
 ## Development
 
 ```bash
-go test ./...
-PYTHONPATH=python python3 -m unittest discover python/tests
+make test
 ```
+
+## Documentation
+
+- [Architecture](docs/architecture.md)
+- [Local workflow](docs/local-workflow.md)
+- [DataHub publishing](docs/datahub.md)
+- [Troubleshooting](docs/troubleshooting.md)

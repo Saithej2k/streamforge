@@ -32,6 +32,15 @@ go run ./cmd/streamforge diagnose \
   --out build/diagnostics-report.json
 ```
 
+Preview DataHub metadata proposals:
+
+```bash
+PYTHONPATH=python python3 -m streamforge_datahub publish \
+  --spec metadata/datahub/orders_dataset.json \
+  --dry-run \
+  --out build/datahub-mcps.jsonl
+```
+
 ## Current Capabilities
 
 - Replay newline-delimited event fixtures to Kafka with stable keys, event times, and headers.
@@ -39,6 +48,7 @@ go run ./cmd/streamforge diagnose \
 - Compare expected replay records against actual Iceberg writes.
 - Flag missing, late, duplicate, hash-mismatched, and unexpected records.
 - Preserve Kafka topic, partition, offset, key, run id, Iceberg snapshot id, and data file path in each finding.
+- Publish DataHub Metadata Change Proposals for lineage, ownership, schema metadata, schema history, and quality checks.
 - Produce text output for operators and JSON output for CI or follow-up automation.
 
 ## Input Shape
@@ -65,4 +75,5 @@ Actual writes include lakehouse placement metadata:
 
 ```bash
 go test ./...
+PYTHONPATH=python python3 -m unittest discover python/tests
 ```

@@ -1,0 +1,154 @@
+{
+  "run_id": "streamforge-orders-demo",
+  "actor": "urn:li:corpuser:streamforge",
+  "platform": "iceberg",
+  "name": "warehouse.default.orders",
+  "env": "PROD",
+  "schema_version": 3,
+  "description": "Orders written by the local Flink replay job and checked by StreamForge diagnostics.",
+  "owners": [
+    {
+      "urn": "urn:li:corpuser:data-platform",
+      "type": "DATAOWNER"
+    },
+    {
+      "urn": "urn:li:corpuser:analytics-engineering",
+      "type": "TECHNICAL_OWNER"
+    }
+  ],
+  "tags": [
+    "streamforge",
+    "lakehouse-replay",
+    "quality-checked"
+  ],
+  "custom_properties": {
+    "pipeline": "flink-orders-replay",
+    "warehouse": "s3://warehouse/",
+    "diagnostics_fixture": "examples/orders"
+  },
+  "schema_history": [
+    "v1 initial order replay shape",
+    "v2 added processed_at for write latency checks",
+    "v3 added quality assertions and field lineage"
+  ],
+  "schema": [
+    {
+      "name": "order_id",
+      "type": "string",
+      "native_type": "STRING",
+      "description": "Stable order identifier carried from the Kafka event key.",
+      "nullable": false
+    },
+    {
+      "name": "customer_id",
+      "type": "string",
+      "native_type": "STRING",
+      "description": "Customer identifier from the checkout event.",
+      "nullable": false
+    },
+    {
+      "name": "amount",
+      "type": "decimal",
+      "native_type": "DECIMAL(12,2)",
+      "description": "Order amount in the event currency.",
+      "nullable": false
+    },
+    {
+      "name": "currency",
+      "type": "string",
+      "native_type": "STRING",
+      "description": "ISO currency code.",
+      "nullable": false
+    },
+    {
+      "name": "status",
+      "type": "string",
+      "native_type": "STRING",
+      "description": "Payment status at the time of replay.",
+      "nullable": false
+    },
+    {
+      "name": "event_time",
+      "type": "timestamp",
+      "native_type": "TIMESTAMP(3)",
+      "description": "Original event timestamp used for watermarking.",
+      "nullable": false
+    },
+    {
+      "name": "processed_at",
+      "type": "timestamp",
+      "native_type": "TIMESTAMP(3)",
+      "description": "Flink processing timestamp recorded when the row is written.",
+      "nullable": false
+    }
+  ],
+  "upstreams": [
+    {
+      "platform": "kafka",
+      "name": "orders",
+      "env": "PROD",
+      "type": "TRANSFORMED",
+      "field_lineage": [
+        {
+          "upstreams": [
+            "order_id"
+          ],
+          "downstreams": [
+            "order_id"
+          ],
+          "operation": "Kafka key and JSON payload projection"
+        },
+        {
+          "upstreams": [
+            "event_time"
+          ],
+          "downstreams": [
+            "event_time"
+          ],
+          "operation": "Flink event-time watermark projection"
+        },
+        {
+          "upstreams": [
+            "amount",
+            "currency"
+          ],
+          "downstreams": [
+            "amount",
+            "currency"
+          ],
+          "operation": "Flink JSON table projection"
+        }
+      ]
+    }
+  ],
+  "quality_checks": [
+    {
+      "id": "orders.order_id.not_null",
+      "type": "FIELD_NOT_NULL",
+      "field": "order_id",
+      "description": "Every replayed order must carry a stable order id.",
+      "logic": "order_id is not null"
+    },
+    {
+      "id": "orders.order_id.unique",
+      "type": "FIELD_UNIQUE",
+      "field": "order_id",
+      "description": "The Iceberg table should not contain duplicate order ids for a replay run.",
+      "logic": "count(distinct order_id) = count(*)"
+    },
+    {
+      "id": "orders.amount.positive",
+      "type": "CUSTOM",
+      "field": "amount",
+      "description": "Orders must have positive monetary value.",
+      "logic": "amount > 0"
+    },
+    {
+      "id": "orders.write_latency.within_5m",
+      "type": "CUSTOM",
+      "field": "processed_at",
+      "description": "Flink writes should land within the expected freshness window.",
+      "logic": "processed_at - event_time <= interval '5' minute"
+    }
+  ]
+}

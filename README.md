@@ -4,6 +4,15 @@ StreamForge is a lakehouse replay and diagnostics toolkit for checking whether K
 
 ## Quick Start
 
+Preview the Kafka replay fixture:
+
+```bash
+go run ./cmd/streamforge replay \
+  --events examples/orders/source_events.jsonl \
+  --topic orders \
+  --dry-run
+```
+
 Run the fixture diagnostics:
 
 ```bash
@@ -25,12 +34,20 @@ go run ./cmd/streamforge diagnose \
 
 ## Current Capabilities
 
+- Replay newline-delimited event fixtures to Kafka with stable keys, event times, and headers.
+- Dry-run replay fixtures before touching a broker.
 - Compare expected replay records against actual Iceberg writes.
 - Flag missing, late, duplicate, hash-mismatched, and unexpected records.
 - Preserve Kafka topic, partition, offset, key, run id, Iceberg snapshot id, and data file path in each finding.
 - Produce text output for operators and JSON output for CI or follow-up automation.
 
 ## Input Shape
+
+Replay events are newline-delimited JSON:
+
+```json
+{"key":"ord-1001","event_time":"2026-01-12T10:00:01Z","headers":{"source":"checkout","schema_version":"orders.v1"},"payload":{"order_id":"ord-1001","amount":125.40,"currency":"USD"}}
+```
 
 Expected records are newline-delimited JSON:
 

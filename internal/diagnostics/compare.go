@@ -162,7 +162,7 @@ func expectedContext(record ExpectedRecord) TraceContext {
 		Key:         record.Trace.Key,
 		Producer:    record.Trace.Producer,
 		RunID:       record.Trace.RunID,
-		EventTime:   record.EventTime,
+		EventTime:   timePtr(record.EventTime),
 		PayloadHash: record.PayloadHash,
 	}
 }
@@ -176,10 +176,17 @@ func actualContext(write ActualWrite) TraceContext {
 		Key:         write.Trace.Key,
 		Producer:    write.Trace.Producer,
 		RunID:       write.Trace.RunID,
-		EventTime:   write.EventTime,
-		WrittenAt:   write.WrittenAt,
+		EventTime:   timePtr(write.EventTime),
+		WrittenAt:   timePtr(write.WrittenAt),
 		PayloadHash: write.PayloadHash,
 		SnapshotID:  write.SnapshotID,
 		FilePath:    write.FilePath,
 	}
+}
+
+func timePtr(value time.Time) *time.Time {
+	if value.IsZero() {
+		return nil
+	}
+	return &value
 }

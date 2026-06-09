@@ -56,18 +56,18 @@ const (
 )
 
 type TraceContext struct {
-	Role        string    `json:"role"`
-	Topic       string    `json:"topic,omitempty"`
-	Partition   int       `json:"partition,omitempty"`
-	Offset      int64     `json:"offset,omitempty"`
-	Key         string    `json:"key,omitempty"`
-	Producer    string    `json:"producer,omitempty"`
-	RunID       string    `json:"run_id,omitempty"`
-	EventTime   time.Time `json:"event_time,omitempty"`
-	WrittenAt   time.Time `json:"written_at,omitempty"`
-	PayloadHash string    `json:"payload_hash,omitempty"`
-	SnapshotID  string    `json:"snapshot_id,omitempty"`
-	FilePath    string    `json:"file_path,omitempty"`
+	Role        string     `json:"role"`
+	Topic       string     `json:"topic,omitempty"`
+	Partition   int        `json:"partition,omitempty"`
+	Offset      int64      `json:"offset,omitempty"`
+	Key         string     `json:"key,omitempty"`
+	Producer    string     `json:"producer,omitempty"`
+	RunID       string     `json:"run_id,omitempty"`
+	EventTime   *time.Time `json:"event_time,omitempty"`
+	WrittenAt   *time.Time `json:"written_at,omitempty"`
+	PayloadHash string     `json:"payload_hash,omitempty"`
+	SnapshotID  string     `json:"snapshot_id,omitempty"`
+	FilePath    string     `json:"file_path,omitempty"`
 }
 
 type Finding struct {

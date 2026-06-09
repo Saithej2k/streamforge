@@ -1,0 +1,16 @@
+replay:
+  brokers:
+    - localhost:19092
+  topic: orders
+  client_id: streamforge-replay
+
+diagnostics:
+  expected: examples/orders/expected_iceberg.jsonl
+  actual: examples/orders/actual_iceberg.jsonl
+  late_after: 5m
+
+iceberg:
+  rest_uri: http://localhost:8181
+  warehouse: s3://warehouse/
+  namespace: default
+  table: orders
